@@ -11,23 +11,79 @@ app.get("/", (req, res) => {
   const posts = list(); 
 
   const html = 
-`  <!DOCTYPE html>
+  `<!DOCTYPE html>
   <html>
   <head>
     <title>Wizard News</title>
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <ul>
+    <div class="news-list">
+      <header><img src="/logo.png"/>Wizard News</header>
       ${posts.map(post => `
-      <li>
-        <h4>${post.title}</h4>
-        <h5>${post.name}</h5>
-      </li>`).join("")}
-    </ul>
+        <div class='news-item'>
+          <p>
+            <span class="news-position">${post.id}. ▲</span>
+            <a href="/posts/${post.id}">${post.title}</a>
+            <small>(by ${post.name})</small>
+          </p>
+          <small class="news-info">
+            ${post.upvotes} upvotes | ${post.date}
+          </small>
+        </div>`
+      ).join('')}
+    </div>
   </body>
-  </html>`
+</html>`
   res.send(html)
 });
+
+app.get("/posts/:id", (req, res) => {
+  const id = req.params.id;
+  const post = find(id);
+  if (!post.id) {
+    res.status(404)
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Wizard News</title>
+      <link rel="stylesheet" href="/style.css" />
+    </head>
+    <body>
+      <header><img src="/logo.png"/>Wizard News</header>
+      <div class="not-found">
+        <p>404: Page Not Found</p>
+      </div>
+    </body>
+    </html>`
+    res.send(html)
+    } else {
+      res.send(
+        `    <!DOCTYPE html>
+            <html>
+            <head>
+              <title href="/">Wizard News</title>
+              <link rel="stylesheet" href="/style.css" />
+            </head>
+            <body>
+              <div class='news-list'>
+              <div class='news-item'>
+              <header><img src="/logo.png"/>Wizard News</header>
+                <p>
+                  <span class="news-position"></span>
+                  ${post.title}
+                  <small>(by ${post.name})</small>
+                </p>
+                <p>${post.content}</p>
+              </div>
+              </div>
+              
+            </body>
+            </html>`
+          )
+    }
+})
 
 const PORT = 1337;
 
